@@ -1,25 +1,38 @@
 package Kotlin.crud.customer
 
 import jakarta.persistence.*
+import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.ResponseStatus
+import java.io.Serializable
+
 
 @Entity
+@Table(name = "customer")
 class Customer(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "customer_id")
-   private val id: Long,
+    var id: Long? = null,
     @Column(name = "first_name")
-   private val firstName: String,
+    val firstName: String,
     @Column(name = "last_name")
-   private val lastName: String,
+   val lastName: String,
     @Column(name = "email")
-   private val email: String,
+   val email: String,
     @Column(name = "address")
-   private val address: String
-){
+    val address: String
+): Serializable{
+
+
   fun toCustomerDto():CustomerDto{
-      return CustomerDto(id,firstName,lastName,email,address);
+      return CustomerDto(firstName,lastName,email,address)
   }
 }
-data class CustomerDto(val id: Long, val firstName:String,val lastName:String
+data class CustomerDto(val firstName:String,val lastName:String
                        , val email:String,val address:String)
+
+@ResponseStatus(HttpStatus.CONFLICT)
+class EmailExistsException(message: String = "Email already exists") : RuntimeException(message)
+
+@ResponseStatus(HttpStatus.NOT_FOUND)
+class CustomerNotFoundException(message: String = "Customer not found") :RuntimeException(message)
