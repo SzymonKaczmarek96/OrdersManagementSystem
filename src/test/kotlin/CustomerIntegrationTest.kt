@@ -1,6 +1,5 @@
 import Kotlin.crud.CrudApplication
 import Kotlin.crud.customer.*
-import jakarta.transaction.Transactional
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -8,8 +7,6 @@ import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
-import org.springframework.test.annotation.DirtiesContext
-import org.springframework.test.annotation.Rollback
 import org.springframework.test.context.ContextConfiguration
 
 
@@ -92,21 +89,24 @@ class CustomerIntegrationTest : TestContainer() {
 
     @Test
     fun `should not update customer information when new information are blank`(){
-        val customerDto = CustomerDto(15L,"","","","")
         customerRepository.saveAll(saveCustomersWithDifferentDescriptionForTest())
+        val customer = customerRepository.findAll().get(0)
+        val customerDto = CustomerDto(customer.toCustomerDto().id,"","","","")
         val response = customerController.updateCustomerInformation(customerDto)
-        val customerAfterUpdate = customerRepository.findAll().filter{ customer:Customer -> customer.toCustomerDto().id == 15L}.first()
+        val customerAfterUpdate = customerRepository.findAll()
+            .filter{ customer:Customer -> customer.toCustomerDto().id == customer.toCustomerDto().id}.first()
         assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-        assertThat(customerAfterUpdate.toCustomerDto().firstName).isEqualTo("Szymon")
-        assertThat(customerAfterUpdate.toCustomerDto().lastName).isEqualTo("Pawlak")
-        assertThat(customerAfterUpdate.toCustomerDto().address).isEqualTo("123 Main St, Warsaw, Poland")
+        assertThat(customerAfterUpdate.toCustomerDto().firstName).isEqualTo(customer.toCustomerDto().firstName)
+        assertThat(customerAfterUpdate.toCustomerDto().lastName).isEqualTo(customer.toCustomerDto().lastName)
+        assertThat(customerAfterUpdate.toCustomerDto().address).isEqualTo(customer.toCustomerDto().address)
     }
 
     @Test
     fun `should delete customer`(){
         val customers = saveCustomersWithDifferentDescriptionForTest()
         customerRepository.saveAll(customers)
-        val response = customerController.deleteCustomer(7L);
+        val customer = customerRepository.findAll().get(0).toCustomerDto()
+        val response = customerController.deleteCustomer(customer.id!!);
         assertThat(response.statusCode).isEqualTo(HttpStatus.NO_CONTENT)
     }
 

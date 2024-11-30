@@ -1,17 +1,41 @@
+version: "3.8"
+
 services:
   db:
-    image: "postgres:13"
-    container_name: 'order'
+    image: postgres:13
+    container_name: db
     environment:
-      POSTGRES_DB: orders_manager
-      POSTGRES_USER: 'user'
-      POSTGRES_PASSWORD: 'user'
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "5433:5432"
+      - "${POSTGRES_LOCAL_PORT}:${POSTGRES_CONTAINER_PORT}"
     volumes:
       - db_data:/var/lib/postgresql/data
 
+  app:
+    depends_on:
+      - db
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: on-failure
+    env_file:
+      - .env
+    ports:
+      - "${SPRING_LOCAL_PORT}:${SPRING_DOCKER_PORT}"
+    environment:
+      SPRING_APPLICATION_JSON: >-
+        {
+          "spring.datasource.url": "${SPRING_DATASOURCE_URL}",
+          "spring.datasource.username": "${SPRING_DATASOURCE_USERNAME}",
+          "spring.datasource.password": "${SPRING_DATASOURCE_PASSWORD}",
+          "spring.jpa.hibernate.ddl-auto": "${SPRING_JPA_HIBERNATE_DDL_AUTO}"
+        }
+    volumes:
+      - .m2:/root/.m2
+    stdin_open: true
+    tty: true
+
 volumes:
   db_data:
-
-

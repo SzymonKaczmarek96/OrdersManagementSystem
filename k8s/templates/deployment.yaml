@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orders-manager
+  labels:
+    app: orders-manager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orders-manager
+  template:
+    metadata:
+      labels:
+        app: orders-manager
+    spec:
+      initContainers:
+          - name: wait-for-db
+            image: vishnubob/wait-for-it:latest
+            command:
+              - "/wait-for-it.sh"
+              - "db:5432"
+              - "--timeout=30"
+              - "--"
+              - "echo"
+              - "Database is up"
+
+      containers:
+        - name: orders-manager
+          image: orders-manager:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://db:5432/orders_manager"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "user"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "user"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:13
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: "orders_manager"
+            - name: POSTGRES_USER
+              value: "user"
+            - name: POSTGRES_PASSWORD
+              value: "user"
