@@ -61,6 +61,7 @@ tasks.withType<Test> {
 
 flyway {
     locations = arrayOf("classpath:db.migration")
+    outOfOrder = true
 }
 
 noArg {
