@@ -1,10 +1,11 @@
-Project Overview
+# Project Overview
+
 This project is designed to streamline the management of orders and product baskets, enabling efficient status tracking and basic workflows for order processing.
 It focuses on creating a simple yet effective system for handling the core aspects of order management.
 
 Note: The project is still in progress, and additional features and enhancements are planned to improve its functionality and scalability.
 
-Technologies Used
+## Technologies Used:
 Kotlin: For building the backend application with modern and concise syntax.
 Spring Boot: Provides a robust framework for creating scalable microservices.
 Gradle: Used for project build and dependency management.
