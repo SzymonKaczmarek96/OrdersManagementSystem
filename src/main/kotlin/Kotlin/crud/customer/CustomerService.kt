@@ -60,7 +60,7 @@ class CustomerService(private val customerRepository: CustomerRepository) {
                     && customerDto.email.isNotBlank()
                     && customerDto.lastName.isNotBlank()
         ) {
-           throw DataBlankException();
+            throw DataBlankException();
         }
     }
 

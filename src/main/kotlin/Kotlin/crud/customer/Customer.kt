@@ -1,9 +1,9 @@
 package Kotlin.crud.customer
 
 import jakarta.persistence.*
-import lombok.Getter
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ResponseStatus
+import updateIf
 import java.io.Serializable
 
 
@@ -30,25 +30,14 @@ class Customer(
     }
 
     fun updateWith(customerDto: CustomerDto) {
-        updateIf(customerDto.firstName.isNotBlank()) {this.firstName = customerDto.firstName}
-        updateIf(customerDto.lastName.isNotBlank()) {this.lastName = customerDto.lastName}
-        updateIf(customerDto.address.isNotBlank()) {this.address = customerDto.address}
-
-        if(customerDto.firstName.isNotBlank()) {
-            this.firstName = customerDto.firstName
-        }
-        if(customerDto.lastName.isNotBlank()) {
-            this.lastName = customerDto.lastName
-        }
-        if(customerDto.address.isNotBlank()) {
-            this.address = customerDto.address
-        }
+        updateIf(customerDto.firstName.isNotBlank()) { this.firstName = customerDto.firstName }
+        updateIf(customerDto.lastName.isNotBlank()) { this.lastName = customerDto.lastName }
+        updateIf(customerDto.address.isNotBlank()) { this.address = customerDto.address }
     }
 
-    fun <T> T.updateIf(condition: Boolean,update: T.() -> Unit ){
-        if(condition) update()
-    }
+
 }
+
 data class CustomerDto(
     val id: Long?, val firstName: String, val lastName: String, val email: String, val address: String
 )
@@ -61,4 +50,4 @@ class EmailExistsException(message: String = "Email already exists") : RuntimeEx
 class CustomerNotFoundException(message: String = "Customer not found") : RuntimeException(message)
 
 @ResponseStatus(HttpStatus.CONFLICT)
-class DataBlankException(message: String ="Customer data cannot contain empty fields") :RuntimeException(message)
+class DataBlankException(message: String = "Customer data cannot contain empty fields") : RuntimeException(message)
