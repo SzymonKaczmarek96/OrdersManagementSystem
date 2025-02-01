@@ -1,3 +1,5 @@
+package integration
+
 import Kotlin.crud.CrudApplication
 import Kotlin.crud.customer.*
 import org.assertj.core.api.Assertions.assertThat
@@ -12,7 +14,7 @@ import org.springframework.test.context.ContextConfiguration
 
 @ContextConfiguration
 @SpringBootTest(classes = [CrudApplication::class])
-class CustomerIntegrationTest : TestContainer() {
+class CustomerServiceIntegrationTest : TestContainer() {
 
     @Autowired
     private lateinit var customerRepository: CustomerRepository
@@ -78,7 +80,6 @@ class CustomerIntegrationTest : TestContainer() {
     }
 
 
-
     @Test
     fun `should throw CustomerNotFoundException when customer has not been found`() {
         val exception = assertThrows<CustomerNotFoundException> {
@@ -88,13 +89,13 @@ class CustomerIntegrationTest : TestContainer() {
     }
 
     @Test
-    fun `should not update customer information when new information are blank`(){
+    fun `should not update customer information when new information are blank`() {
         customerRepository.saveAll(saveCustomersWithDifferentDescriptionForTest())
         val customer = customerRepository.findAll().get(0)
-        val customerDto = CustomerDto(customer.toCustomerDto().id,"","","","")
+        val customerDto = CustomerDto(customer.toCustomerDto().id, "", "", "", "")
         val response = customerController.updateCustomerInformation(customerDto)
         val customerAfterUpdate = customerRepository.findAll()
-            .filter{ customer:Customer -> customer.toCustomerDto().id == customer.toCustomerDto().id}.first()
+            .filter { customer: Customer -> customer.toCustomerDto().id == customer.toCustomerDto().id }.first()
         assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
         assertThat(customerAfterUpdate.toCustomerDto().firstName).isEqualTo(customer.toCustomerDto().firstName)
         assertThat(customerAfterUpdate.toCustomerDto().lastName).isEqualTo(customer.toCustomerDto().lastName)
@@ -102,7 +103,7 @@ class CustomerIntegrationTest : TestContainer() {
     }
 
     @Test
-    fun `should delete customer`(){
+    fun `should delete customer`() {
         val customers = saveCustomersWithDifferentDescriptionForTest()
         customerRepository.saveAll(customers)
         val customer = customerRepository.findAll().get(0).toCustomerDto()
@@ -111,7 +112,7 @@ class CustomerIntegrationTest : TestContainer() {
     }
 
     @Test
-    fun `should throw CustomerNotFoundException when customer not exists during customer delete`(){
+    fun `should throw CustomerNotFoundException when customer not exists during customer delete`() {
         customerRepository.save(saveCustomerWithCorrectData());
         val exception = assertThrows<CustomerNotFoundException> { customerController.deleteCustomer(2L) }
         assertThat(exception.message).isEqualTo("Customer not found")
@@ -135,7 +136,7 @@ class CustomerIntegrationTest : TestContainer() {
         return Customer(6L, " ", "Pawlak", "szymonpawlak96@o2.pl", "123 Main St, Warsaw, Poland")
     }
 
-    private fun createCustomerDtoToUpdateCustomerInformation(): Customer{
+    private fun createCustomerDtoToUpdateCustomerInformation(): Customer {
         return Customer(1L, "Kamila", "Robaczewska", "ewawisniewska@o2.pl", "10 Oak Blvd, Poznan, Poland")
     }
 

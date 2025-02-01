@@ -1,13 +1,6 @@
-import Kotlin.crud.customer.Customer
-import Kotlin.crud.customer.CustomerController
-import Kotlin.crud.customer.CustomerRepository
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
+package integration
+
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.testcontainers.containers.PostgreSQLContainer
@@ -24,6 +17,7 @@ open class TestContainer {
             withUsername("user")
             withPassword("user")
             withExposedPorts(5432)
+            withReuse(true)
             start()
         }
 
@@ -33,6 +27,7 @@ open class TestContainer {
             registry.add("spring.datasource.url") { postgresqlContainer.jdbcUrl }
             registry.add("spring.datasource.username") { postgresqlContainer.username }
             registry.add("spring.datasource.password") { postgresqlContainer.password }
+            registry.add("spring.jpa.hibernate.ddl-auto") { "update" }
         }
     }
 
